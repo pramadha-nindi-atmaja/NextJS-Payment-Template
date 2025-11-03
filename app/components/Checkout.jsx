@@ -14,6 +14,7 @@ const Checkout = ({ lang = 'id' }) => {
   const t = translations[lang];
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [total, setTotal] = useState(product.price);
 
   useEffect(() => {
@@ -35,11 +36,18 @@ const Checkout = ({ lang = 'id' }) => {
 
   const handleQuantityBlur = () => {
     // Sanitize: ensure value is a positive integer
-    setQuantity(Math.max(1, Math.floor(quantity)));
+    setQuantity(Math.max(1, Math.min(99, Math.floor(quantity))));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      e.target.blur();
+    }
   };
 
   const checkout = async () => {
     setIsLoading(true);
+    setError('');
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -59,7 +67,7 @@ const Checkout = ({ lang = 'id' }) => {
       window.snap.pay(data.token);
     } catch (error) {
       console.error("Checkout error:", error);
-      alert(t.error.checkout);
+      setError(t.error.checkout);
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +75,7 @@ const Checkout = ({ lang = 'id' }) => {
 
   const generatePaymentLink = async () => {
     setIsLoading(true);
+    setError('');
     try {
       const response = await fetch('/api/payment-link', {
         method: 'POST',
@@ -88,7 +97,7 @@ const Checkout = ({ lang = 'id' }) => {
       alert(t.linkCopied);
     } catch (error) {
       console.error("Payment link error:", error);
-      alert(t.error.paymentLink);
+      setError(t.error.paymentLink);
     } finally {
       setIsLoading(false);
     }
@@ -96,6 +105,11 @@ const Checkout = ({ lang = 'id' }) => {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <div className="p-3 mb-4 text-sm text-red-800 bg-red-100 rounded-lg" role="alert">
+          <span className="font-medium">{error}</span>
+        </div>
+      )}
       <div className="mb-4">
         <p className="text-sm text-gray-600">{t.unitPrice}: {formatPrice(product.price)}</p>
         <p className="text-lg font-semibold">{t.total}: {formatPrice(total)}</p>
@@ -121,11 +135,14 @@ const Checkout = ({ lang = 'id' }) => {
             className="h-10 w-14 border-x border-gray-200 text-center text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             onChange={handleQuantityChange}
             onBlur={handleQuantityBlur}
+            onKeyDown={handleKeyDown}
             disabled={isLoading}
             min="1"
-            aria-label="Jumlah produk"
+            max="99"
+            aria-label={t.quantity}
             role="spinbutton"
             aria-valuemin="1"
+            aria-valuemax="99"
             aria-valuenow={quantity}
           />
 
@@ -155,8 +172,7 @@ const Checkout = ({ lang = 'id' }) => {
               {t.processing}
             </span>
           ) : (
-            "            ) : (
-            t.checkout"
+            t.checkout
           )}
         </button>
       </div>
