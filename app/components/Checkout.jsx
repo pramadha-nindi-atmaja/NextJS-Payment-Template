@@ -1,8 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { product } from "../libs/product";
+import { translations } from "../libs/i18n";
 
-const Checkout = () => {
+const formatPrice = (amount) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(amount);
+};
+
+const Checkout = ({ lang = 'id' }) => {
+  const t = translations[lang];
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(product.price);
+
+  useEffect(() => {
+    setTotal(quantity * product.price);
+  }, [quantity]);
 
   const decreaseQuantity = () => {
     setQuantity((prevState) => (prevState > 1 ? prevState - 1 : 1));
@@ -17,14 +33,33 @@ const Checkout = () => {
     setQuantity(value < 1 ? 1 : value);
   };
 
+  const handleQuantityBlur = () => {
+    // Sanitize: ensure value is a positive integer
+    setQuantity(Math.max(1, Math.floor(quantity)));
+  };
+
   const checkout = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert("Checkout SNAP! 🌟");
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+          total,
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Checkout failed');
+      
+      const data = await response.json();
+      window.snap.pay(data.token);
     } catch (error) {
       console.error("Checkout error:", error);
+      alert(t.error.checkout);
     } finally {
       setIsLoading(false);
     }
@@ -33,11 +68,27 @@ const Checkout = () => {
   const generatePaymentLink = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert("Checkout Payment Link! 🔥");
+      const response = await fetch('/api/payment-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+          total,
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to generate payment link');
+      
+      const { paymentLink } = await response.json();
+      // Copy to clipboard
+      await navigator.clipboard.writeText(paymentLink);
+      alert(t.linkCopied);
     } catch (error) {
       console.error("Payment link error:", error);
+      alert(t.error.paymentLink);
     } finally {
       setIsLoading(false);
     }
@@ -45,13 +96,18 @@ const Checkout = () => {
 
   return (
     <div className="space-y-4">
+      <div className="mb-4">
+        <p className="text-sm text-gray-600">{t.unitPrice}: {formatPrice(product.price)}</p>
+        <p className="text-lg font-semibold">{t.total}: {formatPrice(total)}</p>
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center border border-gray-200 rounded-md">
+        <div className="flex items-center border border-gray-200 rounded-md" role="group" aria-labelledby="quantity-label">
+          <span id="quantity-label" className="sr-only">{t.quantity}</span>
           <button
             className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-md transition-colors disabled:opacity-50"
             onClick={decreaseQuantity}
             disabled={quantity <= 1 || isLoading}
-            aria-label="Kurangi jumlah"
+            aria-label={t.decrease}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
@@ -59,20 +115,25 @@ const Checkout = () => {
           </button>
 
           <input
-            type="text"
+            type="number"
             id="quantity"
             value={quantity}
-            className="h-10 w-14 border-x border-gray-200 text-center text-gray-900 text-sm focus:outline-none"
+            className="h-10 w-14 border-x border-gray-200 text-center text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             onChange={handleQuantityChange}
+            onBlur={handleQuantityBlur}
             disabled={isLoading}
             min="1"
+            aria-label="Jumlah produk"
+            role="spinbutton"
+            aria-valuemin="1"
+            aria-valuenow={quantity}
           />
 
           <button
             className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-md transition-colors disabled:opacity-50"
             onClick={increaseQuantity}
             disabled={isLoading}
-            aria-label="Tambah jumlah"
+            aria-label={t.increase}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -91,10 +152,11 @@ const Checkout = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Proses...
+              {t.processing}
             </span>
           ) : (
-            "Checkout Sekarang"
+            "            ) : (
+            t.checkout"
           )}
         </button>
       </div>
@@ -104,7 +166,7 @@ const Checkout = () => {
         onClick={generatePaymentLink}
         disabled={isLoading}
       >
-        {isLoading ? "Memproses..." : "Buat Tautan Pembayaran"}
+        {isLoading ? t.processing : t.generateLink}
       </button>
     </div>
   );
