@@ -6,11 +6,16 @@ import Checkout from "./components/Checkout";
 import OrderSummary from "./components/OrderSummary";
 import PaymentMethods from "./components/PaymentMethods";
 import ShippingInfo from "./components/ShippingInfo";
+import ProductGallery from "./components/ProductGallery";
+import SizeSelector from "./components/SizeSelector";
+import WishlistButton from "./components/WishlistButton";
+import { useRecentlyViewed } from "./contexts/RecentlyViewedContext";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState(product.colors[0].value);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0].value);
   const [quantity, setQuantity] = useState(1);
   const [selectedMethod, setSelectedMethod] = useState('credit_card');
   const [shippingInfo, setShippingInfo] = useState({
@@ -23,13 +28,18 @@ export default function Home() {
     notes: ''
   });
   const [couponDiscount, setCouponDiscount] = useState(0);
+  
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
+    // Add product to recently viewed
+    addRecentlyViewed(product);
+    
     // render midtrans snap token
     // Simulate loading completion
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
-  }, []);
+  }, [addRecentlyViewed]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID').format(price);
@@ -38,18 +48,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="relative h-64 sm:h-80">
-          {isLoading ? (
-            <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-          ) : (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              className="object-cover"
-            />
-          )}
+        {/* Product Gallery Component */}
+        <div className="p-4 sm:p-6">
+          <ProductGallery 
+            images={product.images} 
+            productName={product.name} 
+            isLoading={isLoading} 
+          />
         </div>
         
         <div className="p-6 sm:p-8">
@@ -61,6 +66,18 @@ export default function Home() {
               Rp {formatPrice(product.price)}
             </p>
           </div>
+          
+          {/* Wishlist Button */}
+          <div className="mb-4">
+            <WishlistButton product={product} />
+          </div>
+          
+          {/* Size Selection */}
+          <SizeSelector 
+            sizes={product.sizes}
+            selectedSize={selectedSize}
+            onSizeSelect={setSelectedSize}
+          />
           
           {/* Color Selection */}
           <div className="mb-6">
@@ -120,7 +137,8 @@ export default function Home() {
           <div className="mb-6">
             <OrderSummary 
               quantity={quantity} 
-              selectedColor={selectedColor} 
+              selectedColor={selectedColor}
+              selectedSize={selectedSize}
               couponDiscount={couponDiscount}
               setCouponDiscount={setCouponDiscount}
             />
@@ -128,7 +146,8 @@ export default function Home() {
           
           <div className="mt-6">
             <Checkout 
-              selectedColor={selectedColor} 
+              selectedColor={selectedColor}
+              selectedSize={selectedSize}
               quantity={quantity}
               setQuantity={setQuantity}
               selectedMethod={selectedMethod}
