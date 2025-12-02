@@ -10,16 +10,16 @@ const formatPrice = (amount) => {
   }).format(amount);
 };
 
-const Checkout = ({ lang = 'id' }) => {
+const Checkout = ({ lang = 'id', selectedColor, quantity, setQuantity, selectedMethod, shippingInfo, couponDiscount }) => {
   const t = translations[lang];
-  const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [total, setTotal] = useState(product.price);
-
-  useEffect(() => {
-    setTotal(quantity * product.price);
-  }, [quantity]);
+  const [retryCount, setRetryCount] = useState(0);
+  
+  // Calculate total with discount
+  const subtotal = quantity * product.price;
+  const discountAmount = couponDiscount ? (subtotal * couponDiscount) / 100 : 0;
+  const total = subtotal - discountAmount;
 
   const decreaseQuantity = () => {
     setQuantity((prevState) => (prevState > 1 ? prevState - 1 : 1));
@@ -45,7 +45,20 @@ const Checkout = ({ lang = 'id' }) => {
     }
   };
 
+  const validateForm = () => {
+    if (!shippingInfo.name || !shippingInfo.email || !shippingInfo.phone || 
+        !shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
+      return false;
+    }
+    return true;
+  };
+
   const checkout = async () => {
+    if (!validateForm()) {
+      setError(lang === 'id' ? 'Harap lengkapi semua informasi pengiriman yang diperlukan.' : 'Please complete all required shipping information.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     try {
@@ -57,7 +70,13 @@ const Checkout = ({ lang = 'id' }) => {
         body: JSON.stringify({
           productId: product.id,
           quantity,
+          subtotal,
+          discountAmount,
           total,
+          selectedColor,
+          selectedMethod,
+          shippingInfo,
+          couponDiscount
         }),
       });
       
@@ -74,6 +93,11 @@ const Checkout = ({ lang = 'id' }) => {
   };
 
   const generatePaymentLink = async () => {
+    if (!validateForm()) {
+      setError(lang === 'id' ? 'Harap lengkapi semua informasi pengiriman yang diperlukan.' : 'Please complete all required shipping information.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     try {
@@ -85,7 +109,13 @@ const Checkout = ({ lang = 'id' }) => {
         body: JSON.stringify({
           productId: product.id,
           quantity,
+          subtotal,
+          discountAmount,
           total,
+          selectedColor,
+          selectedMethod,
+          shippingInfo,
+          couponDiscount
         }),
       });
       
@@ -103,16 +133,48 @@ const Checkout = ({ lang = 'id' }) => {
     }
   };
 
+  // Retry mechanism for failed operations
+  const retryOperation = () => {
+    if (retryCount < 3) {
+      setRetryCount(retryCount + 1);
+      setError('');
+      // Reset retry count after 5 seconds
+      setTimeout(() => setRetryCount(0), 5000);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {error && (
         <div className="p-3 mb-4 text-sm text-red-800 bg-red-100 rounded-lg" role="alert">
-          <span className="font-medium">{error}</span>
+          <div className="flex justify-between items-center">
+            <span className="font-medium">{error}</span>
+            {retryCount < 3 && (
+              <button 
+                onClick={retryOperation}
+                className="text-sm font-medium text-red-900 underline hover:text-red-700"
+                aria-label="Retry"
+              >
+                Coba Lagi
+              </button>
+            )}
+          </div>
+          {retryCount > 0 && (
+            <p className="mt-1 text-xs">Percobaan ke-{retryCount} dari 3</p>
+          )}
         </div>
       )}
       <div className="mb-4">
         <p className="text-sm text-gray-600">{t.unitPrice}: {formatPrice(product.price)}</p>
-        <p className="text-lg font-semibold">{t.total}: {formatPrice(total)}</p>
+        {couponDiscount > 0 ? (
+          <>
+            <p className="text-sm text-gray-600 line-through">Subtotal: {formatPrice(subtotal)}</p>
+            <p className="text-sm text-green-600">Diskon ({couponDiscount}%): -{formatPrice(discountAmount)}</p>
+            <p className="text-lg font-semibold">Total: {formatPrice(total)}</p>
+          </>
+        ) : (
+          <p className="text-lg font-semibold">{t.total}: {formatPrice(total)}</p>
+        )}
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center border border-gray-200 rounded-md" role="group" aria-labelledby="quantity-label">
