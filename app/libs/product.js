@@ -15,4 +15,11 @@ export const product = {
     { value: "hitam", label: "Hitam" },
     { value: "abu-abu", label: "Abu-Abu" },
   ],
+  features: [
+    "Bahan denim premium yang tahan lama",
+    "Desain klasik dengan siluet yang ramping",
+    "Kantong saku depan fungsional",
+    "Kancing logam berkualitas tinggi",
+    "Tersedia dalam berbagai pilihan warna"
+  ]
 };
