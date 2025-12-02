@@ -3,6 +3,7 @@
 ## Features
 - Product display with image, description, and pricing
 - Color selection for products
+- Size selection for products
 - Quantity adjustment with increment/decrement buttons
 - Order summary display
 - Midtrans payment integration (sandbox)
@@ -15,6 +16,9 @@
 - Multiple payment method selection
 - Coupon/discount system
 - Complete API routes for checkout and payment link generation
+- Product gallery with multiple images
+- Wishlist functionality
+- Recently viewed products
 
 ## Setup Instructions
 
@@ -57,6 +61,10 @@
 - ✅ Multiple payment method options
 - ✅ Coupon/discount system
 - ✅ Detailed order breakdown with discounts
+- ✅ Product gallery with multiple images
+- ✅ Size selection for products
+- ✅ Wishlist functionality with localStorage persistence
+- ✅ Recently viewed products section
 
 ## Testing Coupons
 You can test the coupon system with these demo codes:
