@@ -10,7 +10,7 @@ const formatPrice = (amount) => {
   }).format(amount);
 };
 
-const Checkout = ({ lang = 'id', selectedColor, quantity, setQuantity, selectedMethod, shippingInfo, couponDiscount }) => {
+const Checkout = ({ lang = 'id', selectedColor, selectedSize, quantity, setQuantity, selectedMethod, shippingInfo, couponDiscount }) => {
   const t = translations[lang];
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,6 +74,7 @@ const Checkout = ({ lang = 'id', selectedColor, quantity, setQuantity, selectedM
           discountAmount,
           total,
           selectedColor,
+          selectedSize, // Adding selected size to checkout data
           selectedMethod,
           shippingInfo,
           couponDiscount
@@ -113,6 +114,7 @@ const Checkout = ({ lang = 'id', selectedColor, quantity, setQuantity, selectedM
           discountAmount,
           total,
           selectedColor,
+          selectedSize, // Adding selected size to payment link data
           selectedMethod,
           shippingInfo,
           couponDiscount

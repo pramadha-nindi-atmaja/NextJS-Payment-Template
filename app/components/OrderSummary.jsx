@@ -11,7 +11,7 @@ const formatPrice = (amount) => {
   }).format(amount);
 };
 
-const OrderSummary = ({ quantity, selectedColor, lang = 'id', couponDiscount, setCouponDiscount }) => {
+const OrderSummary = ({ quantity, selectedColor, selectedSize, lang = 'id', couponDiscount, setCouponDiscount }) => {
   const t = translations[lang] || translations['id'];
   const subtotal = quantity * product.price;
   const discountAmount = couponDiscount ? (subtotal * couponDiscount) / 100 : 0;
@@ -19,6 +19,9 @@ const OrderSummary = ({ quantity, selectedColor, lang = 'id', couponDiscount, se
   
   // Find the color label based on the selected color value
   const colorLabel = product.colors.find(color => color.value === selectedColor)?.label || selectedColor;
+  
+  // Find the size label based on the selected size value
+  const sizeLabel = product.sizes.find(size => size.value === selectedSize)?.label || selectedSize;
 
   const handleApplyCoupon = (discount, couponCode) => {
     setCouponDiscount(discount);
@@ -35,6 +38,10 @@ const OrderSummary = ({ quantity, selectedColor, lang = 'id', couponDiscount, se
         <div className="flex justify-between">
           <span className="text-gray-600">Warna</span>
           <span className="text-gray-900">{colorLabel}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Ukuran</span>
+          <span className="text-gray-900">{sizeLabel}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Jumlah</span>
