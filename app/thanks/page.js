@@ -71,6 +71,12 @@ const ThanksPage = ({ lang = 'id' }) => {
                             <p className="text-gray-600">{t.product}</p>
                             <p className="text-gray-900 font-medium">{orderDetails.productName}</p>
                             
+                            <p className="text-gray-600">{t.color}</p>
+                            <p className="text-gray-900 font-medium">{orderDetails.color}</p>
+                            
+                            <p className="text-gray-600">{t.size}</p>
+                            <p className="text-gray-900 font-medium">{orderDetails.size}</p>
+                            
                             <p className="text-gray-600">{t.quantity}</p>
                             <p className="text-gray-900 font-medium">{orderDetails.quantity}</p>
                             
@@ -102,4 +108,4 @@ const ThanksPage = ({ lang = 'id' }) => {
     )
 }
 
-export default page
+export default ThanksPage

@@ -7,7 +7,9 @@ const mockOrders = {
     date: '2023-10-15T10:30:00Z',
     productName: 'LEVI\'S® WOMEN\'S XL TRUCKER JACKET',
     quantity: 1,
-    amount: 350000
+    amount: 350000,
+    color: 'Biru',
+    size: 'M' // Adding size information
   }
 };
 
