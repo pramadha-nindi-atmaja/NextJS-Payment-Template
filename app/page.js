@@ -3,10 +3,26 @@
 import Image from "next/image";
 import { product } from "./libs/product";
 import Checkout from "./components/Checkout";
+import OrderSummary from "./components/OrderSummary";
+import PaymentMethods from "./components/PaymentMethods";
+import ShippingInfo from "./components/ShippingInfo";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedColor, setSelectedColor] = useState(product.colors[0].value);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedMethod, setSelectedMethod] = useState('credit_card');
+  const [shippingInfo, setShippingInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    notes: ''
+  });
+  const [couponDiscount, setCouponDiscount] = useState(0);
 
   useEffect(() => {
     // render midtrans snap token
@@ -21,7 +37,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="relative h-64 sm:h-80">
           {isLoading ? (
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
@@ -46,6 +62,27 @@ export default function Home() {
             </p>
           </div>
           
+          {/* Color Selection */}
+          <div className="mb-6">
+            <h2 className="text-sm font-medium text-gray-700 mb-2">Warna</h2>
+            <div className="flex flex-wrap gap-2">
+              {product.colors.map((color) => (
+                <button
+                  key={color.value}
+                  className={`px-3 py-1 text-sm rounded-full border transition-all ${
+                    selectedColor === color.value
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-700 font-medium"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  onClick={() => setSelectedColor(color.value)}
+                  aria-pressed={selectedColor === color.value}
+                >
+                  {color.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          
           <div className="mb-6">
             <h2 className="text-sm font-medium text-gray-700 mb-2">Deskripsi Produk</h2>
             <p className="text-gray-600 text-sm leading-relaxed">
@@ -67,8 +104,37 @@ export default function Home() {
             </div>
           )}
           
+          {/* Shipping Information */}
+          <ShippingInfo 
+            shippingInfo={shippingInfo}
+            setShippingInfo={setShippingInfo}
+          />
+          
+          {/* Payment Methods */}
+          <PaymentMethods 
+            selectedMethod={selectedMethod}
+            setSelectedMethod={setSelectedMethod}
+          />
+          
+          {/* Order Summary */}
+          <div className="mb-6">
+            <OrderSummary 
+              quantity={quantity} 
+              selectedColor={selectedColor} 
+              couponDiscount={couponDiscount}
+              setCouponDiscount={setCouponDiscount}
+            />
+          </div>
+          
           <div className="mt-6">
-            <Checkout />
+            <Checkout 
+              selectedColor={selectedColor} 
+              quantity={quantity}
+              setQuantity={setQuantity}
+              selectedMethod={selectedMethod}
+              shippingInfo={shippingInfo}
+              couponDiscount={couponDiscount}
+            />
           </div>
         </div>
       </div>
