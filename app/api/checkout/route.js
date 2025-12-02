@@ -10,7 +10,7 @@ let snap = new midtransClient.Snap({
 
 export async function POST(request) {
   try {
-    const { productId, quantity, subtotal, discountAmount, total, selectedColor, selectedMethod, shippingInfo, couponDiscount } = await request.json();
+    const { productId, quantity, subtotal, discountAmount, total, selectedColor, selectedSize, selectedMethod, shippingInfo, couponDiscount } = await request.json();
     
     // Generate order ID
     const orderId = `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -24,7 +24,8 @@ export async function POST(request) {
       "brand": "Your Brand",
       "category": "Category",
       "merchant_name": "Your Merchant Name",
-      "color": selectedColor
+      "color": selectedColor,
+      "size": selectedSize // Adding size to item details
     }];
     
     // Add discount as a separate item if applicable
