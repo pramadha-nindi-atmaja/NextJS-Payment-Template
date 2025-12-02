@@ -4,6 +4,9 @@ import { Toaster } from "react-hot-toast";
 import { siteConfig } from "./config/site";
 import { layoutTranslations } from "./config/translations";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { WishlistProvider } from "./contexts/WishlistContext";
+import { RecentlyViewedProvider } from "./contexts/RecentlyViewedContext";
+import RecentlyViewed from "./components/RecentlyViewed";
 import Script from "next/script";
 
 // Load Inter font with optimized subsets
@@ -78,71 +81,76 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gray-50 text-gray-900 antialiased`}>
-        <Toaster 
-          position="top-center" 
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            success: {
-              iconTheme: {
-                primary: '#10B981',
-                secondary: '#fff',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: '#EF4444',
-                secondary: '#fff',
-              },
-            },
-          }} 
-        />
-        <div className="flex flex-col min-h-screen">
-          <main className="flex-grow">
-            <ErrorBoundary lang={lang}>
-              {children}
-            </ErrorBoundary>
-          </main>
-          <footer className="py-6 bg-white border-t">
-            <div className="container mx-auto px-4">
-              <div className="flex flex-col items-center justify-center space-y-2">
-                <p className="text-sm text-gray-500">
-                  © {new Date().getFullYear()} {siteConfig.name}. {t.footer.allRights}.
-                </p>
-                <div className="flex items-center space-x-1 text-sm text-gray-400">
-                  <span>{t.footer.poweredBy}</span>
-                  <a 
-                    href="https://nextjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    Next.js
-                  </a>
-                  <span>&</span>
-                  <a 
-                    href="https://midtrans.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    Midtrans
-                  </a>
+        <RecentlyViewedProvider>
+          <WishlistProvider>
+            <Toaster 
+              position="top-center" 
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10B981',
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#EF4444',
+                    secondary: '#fff',
+                  },
+                },
+              }} 
+            />
+            <div className="flex flex-col min-h-screen">
+              <main className="flex-grow">
+                <ErrorBoundary lang={lang}>
+                  {children}
+                </ErrorBoundary>
+              </main>
+              <RecentlyViewed lang={lang} />
+              <footer className="py-6 bg-white border-t">
+                <div className="container mx-auto px-4">
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <p className="text-sm text-gray-500">
+                      © {new Date().getFullYear()} {siteConfig.name}. {t.footer.allRights}.
+                    </p>
+                    <div className="flex items-center space-x-1 text-sm text-gray-400">
+                      <span>{t.footer.poweredBy}</span>
+                      <a 
+                        href="https://nextjs.org"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        Next.js
+                      </a>
+                      <span>&</span>
+                      <a 
+                        href="https://midtrans.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        Midtrans
+                      </a>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </footer>
             </div>
-          </footer>
-        </div>
 
-        {/* Midtrans Client Key */}
-        <Script 
-          src="https://app.sandbox.midtrans.com/snap/snap.js" 
-          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-          strategy="lazyOnload"
-        />
+            {/* Midtrans Client Key */}
+            <Script 
+              src="https://app.sandbox.midtrans.com/snap/snap.js" 
+              data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+              strategy="lazyOnload"
+            />
+          </WishlistProvider>
+        </RecentlyViewedProvider>
       </body>
     </html>
   );
