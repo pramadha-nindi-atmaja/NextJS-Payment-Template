@@ -48,6 +48,17 @@ export const WishlistProvider = ({ children }) => {
     setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== productId));
   };
 
+  const toggleWishlist = (product) => {
+    setWishlist(prevWishlist => {
+      const isAlreadyInWishlist = prevWishlist.some(item => item.id === product.id);
+      if (isAlreadyInWishlist) {
+        return prevWishlist.filter(item => item.id !== product.id);
+      } else {
+        return [...prevWishlist, product];
+      }
+    });
+  };
+
   const isInWishlist = (productId) => {
     return wishlist.some(item => item.id === productId);
   };
@@ -60,6 +71,7 @@ export const WishlistProvider = ({ children }) => {
     wishlist,
     addToWishlist,
     removeFromWishlist,
+    toggleWishlist,
     isInWishlist,
     clearWishlist
   };
