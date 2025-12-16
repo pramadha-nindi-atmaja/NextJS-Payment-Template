@@ -1,9 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { layoutTranslations } from '@/app/config/translations';
+import { layoutTranslations } from '../config/translations';
 
-export default function ErrorBoundary({ error, reset, lang = 'id' }) {
+export default function ErrorBoundary({ children, lang = 'id' }) {
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState(null);
+  const t = layoutTranslations[lang];
+
+  // In a real implementation, this would be handled by Next.js automatic error boundaries
+  // For now, we'll just render children normally
+  return children;
+}
+
+// This is the actual error component that would be used in error.js files
+export function ErrorDisplay({ error, reset, lang = 'id' }) {
   const [isRetrying, setIsRetrying] = useState(false);
   const t = layoutTranslations[lang];
 
