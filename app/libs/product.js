@@ -37,5 +37,31 @@ export const product = {
     "Kantong saku depan fungsional",
     "Kancing logam berkualitas tinggi",
     "Tersedia dalam berbagai pilihan warna"
+  ],
+  // Adding rating and review data
+  rating: 4.5,
+  reviewCount: 128,
+  reviews: [
+    {
+      id: 1,
+      userName: "Sarah Johnson",
+      rating: 5,
+      date: "2023-10-15",
+      comment: "Kualitas jaket sangat bagus, bahan tebal dan nyaman dipakai. Ukuran sesuai dengan deskripsi."
+    },
+    {
+      id: 2,
+      userName: "Michael Chen",
+      rating: 4,
+      date: "2023-09-22",
+      comment: "Desainnya keren dan pas di badan. Hanya saja pengirimannya agak lama."
+    },
+    {
+      id: 3,
+      userName: "Dewi Putri",
+      rating: 5,
+      date: "2023-11-05",
+      comment: "Sangat puas dengan pembelian ini. Jaketnya stylish dan tahan lama. Recommended!"
+    }
   ]
 };
